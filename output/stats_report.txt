@@ -1,0 +1,27 @@
+=== Statistics report: daily_deposits_kes ===
+Rows read         : 40
+Valid values      : 35
+Rejected values   : 5
+  row 7: '' (blank value)
+  row 10: '-' (placeholder '-' is not numeric)
+  row 14: 'n/a' (placeholder 'n/a' is not numeric)
+  row 25: '12,40O' (not a finite numeric value)
+  row 29: '' (blank value)
+
+                    all data      outliers removed
+count               35            31
+mean                22400.00      18349.65
+median              18805.47      18506.72
+mode                none          none
+variance (sample)   328019873.36  10116378.52
+std dev (sample)    18111.32      3180.63
+min / max           1200.00 / 96500.00  12772.70 / 26725.69
+Q1 / Q3             15988.21 / 21195.44  15988.21 / 20745.52
+IQR                 5207.23          4757.31
+
+Outlier fences      : lower 8177.36, upper 29006.28
+Outliers            : 96500.00 (2026-09-20, AG-104), 1200.00 (2026-10-02, AG-104), 88400.00 (2026-10-06, AG-104), 29060.99 (2026-10-07, AG-101)
+
+Risk team: A high outlier may reflect fraud, an unusual legitimate deposit, or a recording error.
+A low outlier may indicate a float shortage, temporary closure, or a missing transaction batch.
+Review the source records and agent context before taking action; the IQR flag alone does not establish cause.
