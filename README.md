@@ -1,6 +1,4 @@
-# Day 3 - Statistical Analysis Toolkit
-
-Squad Python Specialization - Data Science, AI & Analytics
+# Wakala Plus Statistical Analysis Toolkit
 
 ## Overview
 
@@ -11,7 +9,7 @@ This project analyzes the `daily_deposits_kes` column in the supplied agent depo
 ## Project files
 
 ```text
-day3-stats-toolkit/
+/Statistical-Analysis
 ├── stats_toolkit.py
 ├── test_stats_toolkit.py
 ├── data/
@@ -23,7 +21,6 @@ day3-stats-toolkit/
 Requirements and dependencies
 - Python 3.9 or later
 - NumPy 2.5.3, used only to verify the calculations
-- Pandas 3.0.6 appears in the supplied requirements file, but this toolkit does not use Pandas
 The requirements file you supplied is a full Anaconda environment export. It includes many packages beyond this project, along with file:///... entries pointing to build paths on the computer where the environment was created. Those paths are machine-specific, so the full file may not install on another computer.
 
 This toolkit only needs NumPy as a third-party dependency. For a portable project-level requirements.txt, use:
