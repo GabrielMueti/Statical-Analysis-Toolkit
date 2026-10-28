@@ -1,6 +1,3 @@
-Copy and paste this into `README.md`:
-
-```markdown
 # Wakala Plus Statistical Analysis Toolkit
 
 ## Overview
