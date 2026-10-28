@@ -1,15 +1,16 @@
 # Wakala Plus Statistical Analysis Toolkit
 
+
 ## Overview
 
-Wakala Plus runs a network of M-Pesa agents around Nairobi, Thika, Machakos and Nakuru. The risk team monitors daily deposit totals because unusually high or low days may point to fraud, a float shortage, or a data-entry error.
+Wakala Plus operates M-Pesa agent networks around Nairobi, Thika, Machakos, and Nakuru. The risk team reviews daily deposits for unusually high or low amounts that could point to fraud, a float shortage, or a data-entry error.
 
-This project analyzes the `daily_deposits_kes` column in the supplied agent deposit dataset. It implements the statistical calculations in plain Python, records invalid and missing values, detects outliers using the interquartile range (IQR), and compares the results with NumPy. The toolkit also generates a report for the risk team.
+This toolkit analyzes the `daily_deposits_kes` column in the supplied 40-day dataset. It calculates summary statistics using plain Python, records missing and invalid entries, flags potential outliers using the interquartile range (IQR), and checks selected results against NumPy. It then prints and saves a report for the risk team.
 
 ## Project files
 
 ```text
-/Statistical-Analysis
+day3-stats-toolkit/
 ├── stats_toolkit.py
 ├── test_stats_toolkit.py
 ├── data/
@@ -18,74 +19,99 @@ This project analyzes the `daily_deposits_kes` column in the supplied agent depo
 │   └── stats_report.txt
 ├── requirements.txt
 └── README.md
-Requirements and dependencies
+```
+
+## Requirements
+
 - Python 3.9 or later
-- NumPy 2.5.3, used only to verify the calculations
-The requirements file you supplied is a full Anaconda environment export. It includes many packages beyond this project, along with file:///... entries pointing to build paths on the computer where the environment was created. Those paths are machine-specific, so the full file may not install on another computer.
+- NumPy 2.5.3, used only to verify calculations in `compare_with_numpy()`
 
-This toolkit only needs NumPy as a third-party dependency. For a portable project-level requirements.txt, use:
+The supplied requirements file is a full Anaconda environment export with many packages and machine-specific `file:///...` paths. Those paths may not work on another computer. This toolkit only needs NumPy as a third-party dependency, so a portable project `requirements.txt` can contain:
+
+```text
 numpy==2.5.3
-Install the project dependency from the project directory with:
+```
+
+Install the project dependency from the project directory:
+
+```bash
 python -m pip install -r requirements.txt
-If you use the full supplied environment file as-is, use the Anaconda environment that produced it rather than treating its machine-specific paths as portable requirements.
+```
 
-All calculations are implemented in plain Python. The toolkit does not use Python’s statistics module. CSV handling, numeric validation, square roots, and file operations use Python’s standard library.
-Run the toolkit
+All statistics are calculated in plain Python. The toolkit does not use Python’s `statistics` module. CSV handling, numeric validation, square roots, and file operations use the Python standard library.
+
+## Run the toolkit
+
 From the project directory, run:
-python stats_toolkit.py
-The script prints the report and NumPy verification results in the terminal. It also creates the output folder if needed and saves the report to:
-output/stats_report.txt
-The CSV path is set by DATA_PATH near the top of stats_toolkit.py.
-Run the tests
-The test suite uses Python’s built-in unittest framework; no separate test framework is required.
-python -m unittest -v
-Tests use small, hand-checkable examples and a temporary CSV file. They cover known means, odd and even medians, tied modes and no mode, empty input, sample and population variance, standard deviation edge cases, quartiles, IQR outliers, CSV rejection behavior, and the analyzer class.
-Approach and statistical choices
-Mean, median, and mode
-Mean, median, and mode are implemented directly in Python.
-- The mean is the sum of the values divided by the number of values.
-- The median is the middle value after sorting, or the average of the two middle values when the list length is even.
-- The mode function returns a list of every value tied for the highest frequency. It returns an empty list when the input is empty or every value occurs once, because there is no repeated value to report as a mode.
-Mean and median raise ValueError for empty input.
-Variance and standard deviation
-Both functions support sample and population formulas:
-- Sample variance divides by n - 1.
-- Population variance divides by n.
-- Sample variance and standard deviation are used by default.
-The 40 days in this dataset are treated as observations from an ongoing deposit process. Sample variance is therefore used to estimate the process’s broader variability. Pass sample=False when the values represent the complete population you want to describe.
 
-Sample variance requires at least two values. Population variance requires at least one value.
-Quartiles and IQR outliers
-Quartiles use Tukey’s median-of-halves method:
-- Q2 is the median of the full sorted dataset.
-- For an odd number of values, Q2 is excluded from both halves.
-- Q1 is the median of the lower half; Q3 is the median of the upper half.
-The IQR is calculated as:
-IQR = Q3 - Q1
-Using the default k = 1.5, the fences are:
+```bash
+python stats_toolkit.py
+```
+
+The script prints the report and NumPy verification results, then saves the report to:
+
+```text
+output/stats_report.txt
+```
+
+The script creates the `output` directory if it does not already exist. The input CSV location is set by `DATA_PATH` near the top of `stats_toolkit.py`.
+
+## Run the tests
+
+The tests use Python’s built-in `unittest` framework:
+
+```bash
+python -m unittest -v
+```
+
+The suite uses small, hand-checkable examples and a temporary CSV file. It covers central tendency, empty input, sample and population variance, standard deviation edge cases, quartiles, outlier detection, rejected CSV values, and the `StatisticsAnalyzer` class.
+
+## Approach and assumptions
+
+### Calculations
+
+Mean, median, mode, variance, standard deviation, quartiles, and IQR outlier detection are implemented directly in Python.
+
+- `mode()` returns every value tied for the highest frequency. It returns an empty list for empty input or when every value appears once.
+- Mean, median, and quartiles raise `ValueError` when given empty input.
+- Variance and standard deviation support sample and population formulas. They use the **sample** formula (`n - 1`) by default because the observed days are treated as a sample of an ongoing deposit process. Pass `sample=False` to use the population formula when the data represents the entire population of interest.
+- Sample variance and standard deviation require at least two values; population variance and standard deviation require at least one.
+
+### Quartiles and outliers
+
+Quartiles use **Tukey’s median-of-halves method**. Q2 is the median of the full dataset. When there is an odd number of values, Q2 is excluded from both halves; Q1 and Q3 are the medians of the lower and upper halves.
+
+The IQR is `Q3 - Q1`. With the default `k = 1.5`, the fences are:
+
+```text
 Lower fence = Q1 - 1.5 × IQR
 Upper fence = Q3 + 1.5 × IQR
-Values strictly below the lower fence or strictly above the upper fence are flagged as outliers. A value equal to a fence is not flagged. Quartile conventions can differ, so the NumPy comparison uses the same median-of-halves approach as the toolkit.
+```
 
-An outlier is a prompt to review the record. It does not, by itself, establish fraud or a data-entry error.
-Missing and invalid values
-load_column(path, column) reads the selected CSV column and returns:
-1. Valid values converted to floats.
-2. Rejected (row_number, raw_value) pairs.
-A value is accepted only if Python can parse it as a finite float. Blank cells, placeholders such as - and n/a, malformed values such as 12,40O, and non-finite values such as NaN or infinity are rejected. The toolkit does not guess, correct, or impute rejected values.
+Only values strictly outside the fences are flagged. The NumPy comparison uses the same quartile method. An outlier is a review flag, not proof of fraud or an error.
 
-The report gives each rejection a reason based on its raw text. CSV row numbering counts the header as row 1.
-StatisticsAnalyzer class
-StatisticsAnalyzer keeps a dataset and related information together, including its column name, rejected rows, and available date and agent details.
-- StatisticsAnalyzer.from_csv() loads the requested column from a CSV file and creates an analyzer.
-- summary() returns the statistics in a dictionary.
-- without_outliers() returns a new analyzer containing the values retained by the IQR rule. It does not change the original analyzer.
-- report() formats the full-data and outliers-removed statistics, rejected values, outlier details, and risk-team notes.
-The analyzer stores a sorted copy of its values for reuse.
-NumPy verification
-NumPy is imported only inside compare_with_numpy(). It verifies the toolkit’s mean, median, sample variance, sample standard deviation, and quartiles. Comparisons use a numerical tolerance rather than exact equality. The NumPy variance and standard deviation checks use ddof=1, matching the toolkit’s sample formulas.
-Assumptions and limitations
-- The supplied CSV contains daily deposit values in Kenyan shillings.
-- Valid numeric values are analyzed as entered; the toolkit does not correct suspected typos.
-- The IQR method can flag legitimate unusual activity. Review flagged records against the source data and agent context.
-- This small teaching dataset and toolkit are not a fraud-detection system.
+### Data cleaning
+
+`load_column(path, column)` returns valid values as floats and rejected entries as `(row_number, raw_value)` pairs. It accepts values that Python can parse as finite numbers. Blank cells, placeholders such as `-` and `n/a`, malformed entries such as `12,40O`, and non-finite values such as `NaN` or infinity are rejected.
+
+The toolkit does not guess, correct, or fill rejected values. The report provides a reason for each rejection based on its raw text. CSV row numbers count the header as row 1.
+
+### Analyzer class and report
+
+`StatisticsAnalyzer` keeps the values and related CSV details together.
+
+- `from_csv()` loads a column and creates an analyzer.
+- `summary()` returns the statistics in a dictionary.
+- `without_outliers()` returns a new analyzer with flagged values removed; it leaves the original analyzer unchanged.
+- `report()` formats the full-data and cleaned-data summaries, rejection details, outlier records, and risk-team notes.
+
+The analyzer stores a sorted copy of the values for reuse.
+
+### NumPy verification
+
+NumPy is imported only inside `compare_with_numpy()`. It checks the mean, median, sample variance, sample standard deviation, and quartiles against the toolkit’s results using a numerical tolerance. The variance and standard deviation checks use `ddof=1` to match the sample formulas.
+
+## Limitations
+
+The IQR method can flag legitimate unusual activity, and different quartile conventions can produce different fences. Review flagged deposits against source records and agent context before deciding what they mean. This teaching toolkit is not a fraud-detection system.
+
