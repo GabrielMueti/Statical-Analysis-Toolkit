@@ -10,7 +10,7 @@ This toolkit analyzes the `daily_deposits_kes` column in the supplied 40-day dat
 ## Project files
 
 ```text
-day3-stats-toolkit/
+Statistical-Analysis
 ├── stats_toolkit.py
 ├── test_stats_toolkit.py
 ├── data/
